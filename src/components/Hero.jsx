@@ -21,6 +21,7 @@ const styles = {
     gap: 32,
     width: 'max-content',
     userSelect: 'none',
+    touchAction: 'none',
     willChange: 'transform',
   },
   marqueeReverse: {
