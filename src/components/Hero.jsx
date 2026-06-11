@@ -20,7 +20,11 @@ const styles = {
     display: 'flex',
     gap: 32,
     width: 'max-content',
-    animation: 'scroll 40s linear infinite',
+    overflowX: 'auto',
+    scrollbarWidth: 'none',
+    msOverflowStyle: 'none',
+    userSelect: 'none',
+    touchAction: 'pan-x pinch-zoom',
   },
   marqueeReverse: {
     display: 'flex',
@@ -231,15 +235,15 @@ const benefits = [
 
 export default function Hero({ cars, loading, onReserve }) {
   const styleSheet = useRef(null)
+  const marqueeRef = useRef(null)
+  const pauseTimeoutRef = useRef(null)
+  const autoIntervalRef = useRef(null)
+  const [isDragging, setIsDragging] = useState(false)
 
   useEffect(() => {
     if (!styleSheet.current) {
       const style = document.createElement('style')
       style.textContent = `
-        @keyframes scroll {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
         @keyframes scroll-reverse {
           0% { transform: translateX(-50%); }
           100% { transform: translateX(0); }
@@ -248,6 +252,7 @@ export default function Hero({ cars, loading, onReserve }) {
           0%, 100% { transform: translateX(-50%) translateY(0); }
           50% { transform: translateX(-50%) translateY(8px); }
         }
+        .hero-marquee-r::-webkit-scrollbar { display: none; }
       `
       document.head.appendChild(style)
       styleSheet.current = style
@@ -260,6 +265,73 @@ export default function Hero({ cars, loading, onReserve }) {
     }
   }, [])
 
+  useEffect(() => {
+    const el = marqueeRef.current
+    if (!el || cars.length === 0 || loading) return
+
+    let intervalId
+    let pauseTimerId
+
+    function startScroll() {
+      stopScroll()
+      intervalId = setInterval(() => {
+        el.scrollLeft += 1
+        if (el.scrollLeft >= el.scrollWidth / 2) {
+          el.scrollLeft = 0
+        }
+      }, 30)
+    }
+
+    function stopScroll() {
+      if (intervalId) {
+        clearInterval(intervalId)
+        intervalId = null
+      }
+    }
+
+    function pauseScroll() {
+      stopScroll()
+      clearTimeout(pauseTimerId)
+      pauseTimerId = setTimeout(startScroll, 1000)
+    }
+
+    function handleMouseDown(e) {
+      setIsDragging(true)
+      pauseScroll()
+      const startX = e.clientX
+      const startLeft = el.scrollLeft
+
+      function onMove(e) {
+        el.scrollLeft = startLeft - (e.clientX - startX)
+      }
+
+      function onUp() {
+        setIsDragging(false)
+        document.removeEventListener('mousemove', onMove)
+        document.removeEventListener('mouseup', onUp)
+      }
+
+      document.addEventListener('mousemove', onMove)
+      document.addEventListener('mouseup', onUp)
+    }
+
+    startScroll()
+
+    el.addEventListener('wheel', pauseScroll, { passive: true })
+    el.addEventListener('touchstart', pauseScroll, { passive: true })
+    el.addEventListener('touchmove', pauseScroll, { passive: true })
+    el.addEventListener('mousedown', handleMouseDown)
+
+    return () => {
+      stopScroll()
+      clearTimeout(pauseTimerId)
+      el.removeEventListener('wheel', pauseScroll)
+      el.removeEventListener('touchstart', pauseScroll)
+      el.removeEventListener('touchmove', pauseScroll)
+      el.removeEventListener('mousedown', handleMouseDown)
+    }
+  }, [cars, loading])
+
   return (
     <section style={styles.hero} id="fleet">
       <div style={styles.marqueeWrap}>
@@ -271,7 +343,11 @@ export default function Hero({ cars, loading, onReserve }) {
           </div>
         ) : (
           <>
-            <div style={styles.marquee} className="hero-marquee-r">
+            <div
+              ref={marqueeRef}
+              style={{ ...styles.marquee, cursor: isDragging ? 'grabbing' : 'grab' }}
+              className="hero-marquee-r"
+            >
               {[...cars, ...cars].map((car, i) => (
                 <CarCard key={`${car.id}-${i}`} car={car} onClick={onReserve} />
               ))}
