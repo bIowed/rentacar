@@ -20,11 +20,8 @@ const styles = {
     display: 'flex',
     gap: 32,
     width: 'max-content',
-    overflowX: 'auto',
-    scrollbarWidth: 'none',
-    msOverflowStyle: 'none',
     userSelect: 'none',
-    touchAction: 'pan-x pinch-zoom',
+    willChange: 'transform',
   },
   marqueeReverse: {
     display: 'flex',
@@ -252,7 +249,6 @@ export default function Hero({ cars, loading, onReserve }) {
           0%, 100% { transform: translateX(-50%) translateY(0); }
           50% { transform: translateX(-50%) translateY(8px); }
         }
-        .hero-marquee-r::-webkit-scrollbar { display: none; }
       `
       document.head.appendChild(style)
       styleSheet.current = style
@@ -269,16 +265,18 @@ export default function Hero({ cars, loading, onReserve }) {
     const el = marqueeRef.current
     if (!el || cars.length === 0 || loading) return
 
+    let offset = 0
     let intervalId
     let pauseTimerId
+    let isUserInteracting = false
 
     function startScroll() {
       stopScroll()
       intervalId = setInterval(() => {
-        el.scrollLeft += 1
-        if (el.scrollLeft >= el.scrollWidth / 2) {
-          el.scrollLeft = 0
-        }
+        if (isUserInteracting) return
+        offset += 1
+        if (offset >= el.scrollWidth / 2) offset = 0
+        el.style.transform = `translateX(${-offset}px)`
       }, 30)
     }
 
@@ -289,20 +287,34 @@ export default function Hero({ cars, loading, onReserve }) {
       }
     }
 
-    function pauseScroll() {
-      stopScroll()
+    function pauseFor() {
+      isUserInteracting = true
       clearTimeout(pauseTimerId)
-      pauseTimerId = setTimeout(startScroll, 1000)
+      pauseTimerId = setTimeout(() => {
+        isUserInteracting = false
+      }, 1000)
+    }
+
+    function clamp(v) {
+      return Math.max(0, Math.min(v, el.scrollWidth / 2))
+    }
+
+    function handleWheel(e) {
+      e.preventDefault()
+      pauseFor()
+      offset = clamp(offset + e.deltaY)
+      el.style.transform = `translateX(${-offset}px)`
     }
 
     function handleMouseDown(e) {
       setIsDragging(true)
-      pauseScroll()
+      pauseFor()
       const startX = e.clientX
-      const startLeft = el.scrollLeft
+      const startOffset = offset
 
       function onMove(e) {
-        el.scrollLeft = startLeft - (e.clientX - startX)
+        offset = clamp(startOffset - (e.clientX - startX))
+        el.style.transform = `translateX(${-offset}px)`
       }
 
       function onUp() {
@@ -315,20 +327,34 @@ export default function Hero({ cars, loading, onReserve }) {
       document.addEventListener('mouseup', onUp)
     }
 
+    let touchStartX, touchStartOffset
+
+    function handleTouchStart(e) {
+      pauseFor()
+      touchStartX = e.touches[0].clientX
+      touchStartOffset = offset
+    }
+
+    function handleTouchMove(e) {
+      e.preventDefault()
+      offset = clamp(touchStartOffset - (e.touches[0].clientX - touchStartX))
+      el.style.transform = `translateX(${-offset}px)`
+    }
+
     startScroll()
 
-    el.addEventListener('wheel', pauseScroll, { passive: true })
-    el.addEventListener('touchstart', pauseScroll, { passive: true })
-    el.addEventListener('touchmove', pauseScroll, { passive: true })
+    el.addEventListener('wheel', handleWheel, { passive: false })
     el.addEventListener('mousedown', handleMouseDown)
+    el.addEventListener('touchstart', handleTouchStart, { passive: true })
+    el.addEventListener('touchmove', handleTouchMove, { passive: false })
 
     return () => {
       stopScroll()
       clearTimeout(pauseTimerId)
-      el.removeEventListener('wheel', pauseScroll)
-      el.removeEventListener('touchstart', pauseScroll)
-      el.removeEventListener('touchmove', pauseScroll)
+      el.removeEventListener('wheel', handleWheel)
       el.removeEventListener('mousedown', handleMouseDown)
+      el.removeEventListener('touchstart', handleTouchStart)
+      el.removeEventListener('touchmove', handleTouchMove)
     }
   }, [cars, loading])
 
@@ -346,7 +372,6 @@ export default function Hero({ cars, loading, onReserve }) {
             <div
               ref={marqueeRef}
               style={{ ...styles.marquee, cursor: isDragging ? 'grabbing' : 'grab' }}
-              className="hero-marquee-r"
             >
               {[...cars, ...cars].map((car, i) => (
                 <CarCard key={`${car.id}-${i}`} car={car} onClick={onReserve} />
