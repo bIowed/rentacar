@@ -1,0 +1,45 @@
+@media (max-width: 768px) {
+  .section { padding: 60px 16px !important; }
+  .section-title { font-size: clamp(24px, 7vw, 32px) !important; }
+  .section-subtitle { font-size: 16px !important; }
+  .btn { padding: 12px 24px !important; font-size: 14px !important; }
+}
+
+@media (max-width: 768px) {
+  .navbar-links { display: none !important; }
+  .navbar-hamburger { display: flex !important; }
+}
+
+@media (min-width: 769px) {
+  .navbar-hamburger { display: none !important; }
+}
+
+@media (max-width: 768px) {
+  .hero-card-r { width: 240px !important; }
+  .hero-marquee-r { gap: 16px !important; }
+}
+
+@media (max-width: 768px) {
+  .about-grid-r { grid-template-columns: 1fr !important; gap: 40px !important; }
+  .about-quote-r { font-size: 22px !important; padding: 24px !important; }
+}
+
+@media (max-width: 768px) {
+  .why-grid-r { grid-template-columns: 1fr !important; gap: 16px !important; }
+}
+
+@media (max-width: 768px) {
+  .footer-inner-r { grid-template-columns: 1fr !important; gap: 32px !important; }
+  .footer-bottom-r { flex-direction: column !important; text-align: center !important; }
+}
+
+@media (max-width: 480px) {
+  .modal-r { padding: 32px 20px !important; }
+}
+
+@media (max-width: 768px) {
+  .admin-content-r { padding: 16px !important; }
+  .admin-form-grid-r { grid-template-columns: 1fr !important; }
+  .admin-car-grid-r { grid-template-columns: 1fr !important; }
+  .admin-table-wrap-r { overflow-x: auto !important; }
+}
