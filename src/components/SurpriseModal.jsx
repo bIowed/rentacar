@@ -4,15 +4,14 @@ import defaultCars from '../data/defaultCars'
 const PHONE = '971501140034'
 
 const SEGMENTS = [
-  { label: '5%', discount: 5, color: '#2c3e50' },
+  { label: '10%', discount: 10, color: '#e74c3c' },
   { label: '25%', discount: 25, color: '#27ae60' },
-  { label: '10%', discount: 10, color: '#8e44ad' },
-  { label: '30%', discount: 30, color: '#d4a853' },
-  { label: '15%', discount: 15, color: '#e74c3c' },
-  { label: '20%', discount: 20, color: '#3498db' },
+  { label: '40%', discount: 40, color: '#3498db' },
+  { label: '70%', discount: 70, color: '#8e44ad' },
+  { label: '100%', discount: 100, color: '#d4a853' },
 ]
 
-const RIGGED = [25, 30]
+const RIGGED = [25]
 const SEG_ANGLE = 360 / SEGMENTS.length
 
 const RENTAL_TYPES = [
