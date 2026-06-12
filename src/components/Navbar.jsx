@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import SurpriseModal from './SurpriseModal'
 
 const WHATSAPP_NUMBER = '971501140034'
 
@@ -86,20 +85,6 @@ const styles = {
     textDecoration: 'none',
     borderRadius: 4,
   },
-  surpriseBtn: {
-    background: 'none',
-    border: '1px solid var(--gold)',
-    color: 'var(--gold)',
-    fontFamily: 'var(--font-display)',
-    fontSize: 10,
-    letterSpacing: '1px',
-    textTransform: 'uppercase',
-    cursor: 'pointer',
-    padding: '6px 12px',
-    transition: 'all 0.2s',
-    whiteSpace: 'nowrap',
-    borderRadius: 2,
-  },
   hamburger: {
     display: 'none',
     flexDirection: 'column',
@@ -155,7 +140,6 @@ const styles = {
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-  const [showSurprise, setShowSurprise] = useState(false)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
@@ -180,10 +164,6 @@ export default function Navbar() {
               ATA<span style={styles.logoAccent}>POWER</span> RENT A CAR
             </span>
           </a>
-
-          <button style={styles.surpriseBtn} onClick={() => setShowSurprise(true)}>
-            Surprise
-          </button>
 
           <ul style={styles.desktopLinks} className="navbar-links">
             <li><a href="#fleet" style={styles.link}>Fleet</a></li>
@@ -246,7 +226,6 @@ export default function Navbar() {
           WhatsApp
         </a>
       </div>
-      {showSurprise && <SurpriseModal onClose={() => setShowSurprise(false)} />}
     </>
   )
 }

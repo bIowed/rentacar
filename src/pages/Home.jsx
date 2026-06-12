@@ -5,9 +5,11 @@ import About from '../components/About'
 import WhyChooseUs from '../components/WhyChooseUs'
 import Footer from '../components/Footer'
 import ReservationModal from '../components/ReservationModal'
+import SurpriseModal from '../components/SurpriseModal'
 
 export default function Home() {
   const [cars, setCars] = useState([])
+  const [showSurprise, setShowSurprise] = useState(false)
   const [loading, setLoading] = useState(true)
   const [selectedCar, setSelectedCar] = useState(null)
 
@@ -92,6 +94,47 @@ export default function Home() {
           onClose={() => setSelectedCar(null)}
         />
       )}
+      {showSurprise && <SurpriseModal onClose={() => setShowSurprise(false)} />}
+
+      <div
+        onClick={() => setShowSurprise(true)}
+        style={{
+          position: 'fixed',
+          right: 0,
+          top: '50%',
+          transform: 'translateY(-50%)',
+          zIndex: 999,
+          background: 'linear-gradient(135deg, #d4a853, #f0c060, #d4a853)',
+          backgroundSize: '200% 200%',
+          color: '#0a0a0a',
+          padding: '18px 24px',
+          fontFamily: 'var(--font-display)',
+          fontSize: 15,
+          fontWeight: 800,
+          letterSpacing: '3px',
+          textTransform: 'uppercase',
+          cursor: 'pointer',
+          border: 'none',
+          writingMode: 'vertical-lr',
+          borderRadius: '8px 0 0 8px',
+          boxShadow: '0 0 30px rgba(212,168,83,0.6), 0 0 60px rgba(212,168,83,0.3)',
+          animation: 'surprisePulse 1.5s ease-in-out infinite',
+        }}
+      >
+        🎁 Surprise
+      </div>
+      <style>{`
+        @keyframes surprisePulse {
+          0%, 100% {
+            box-shadow: 0 0 20px rgba(212,168,83,0.5), 0 0 40px rgba(212,168,83,0.2);
+            background-position: 0% 50%;
+          }
+          50% {
+            box-shadow: 0 0 40px rgba(212,168,83,0.8), 0 0 80px rgba(212,168,83,0.4);
+            background-position: 100% 50%;
+          }
+        }
+      `}</style>
     </>
   )
 }
